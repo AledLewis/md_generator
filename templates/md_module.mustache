@@ -1,0 +1,112 @@
+{{={[ ]}=}}
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fm="http://www.og.dti.gov/fox_module" xmlns:fox="http://www.og.dti.gov/fox" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:{[short]}="http://www.og.dti.gov/fox_module/{[short]}" xmlns:{[short]}-edit="http://www.og.dti.gov/fox_module/{[short]}-edit" elementFormDefault="qualified" attributeFormDefault="unqualified" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema
+C:\pvcswork\Fox\source\altova_xmlspy\schema\fox_schema.xsd">
+  <xs:import schemaLocation="C:\pvcswork\Fox\source\altova_xmlspy\schema\fox_import.xsd"/>
+  <xs:annotation>
+    <xs:appinfo>
+      <fm:module>
+        <fm:header>
+          <fm:name>{[application_name]}_{[singular_upcase]}</fm:name>
+          <fm:title>{[description]}</fm:title>
+          <fm:application-title>{[application_name]}</fm:application-title>
+          <fm:version-no>$Id$</fm:version-no>
+          <fm:version-desc>$Header$</fm:version-desc>
+          <fm:description/>
+          <fm:build-notes/>
+          <fm:help-text/>
+        </fm:header>
+        <fm:control>
+          <fm:transaction-mode>read-committed</fm:transaction-mode>
+        </fm:control>
+        <fm:security-list>
+          <fm:mode-rule namespace="{[short]}" operation="ENABLE" theme="resume"/>
+        </fm:security-list>
+        <fm:library-list>
+		  <fm:library>FOX_DEFAULT_LAYOUT</fm:library>
+		</fm:library-list>
+        <fm:storage-location-list>
+          <fm:storage-location name="sl-{[short]}"  xml-storage-type="binary">
+            <fm:cache-key>
+              <fm:using using-type="XPATH">:{params}/{[short_upcase]}_ID</fm:using>
+            </fm:cache-key>
+            <fm:context-label>{[short]}</fm:context-label>
+            <fm:new-document>
+              <fm:root-element>{[singular_upcase]}</fm:root-element>
+            </fm:new-document>
+            <fm:database>
+              <fm:query>
+                <fm:sql>
+SELECT {[short]}d.{[short]}_xml_data
+FROM {[schema]}.{[singular]}_details {[short]}d
+JOIN {[schema]}.{[plural]} {[short]} ON {[short]}.id = {[short]}d.{[short]}_id
+WHERE 
+  {[short]}.id = :1 
+AND {[short]}d.status_control = 'C'
+FOR UPDATE NOWAIT
+                </fm:sql>
+                <fm:using using-type="XPATH">:{params}/{[short_upcase]}_ID</fm:using>
+              </fm:query>
+              <fm:update>
+                <fm:sql>
+UPDATE {[schema]}.{[singular]}_details {[short]}d
+SET 
+  {[short]}d.{[short]}_xml_data = :1
+, {[short]}d.last_modified_by_wua_id = :2
+, {[short]}d.last_modified_datetime = SYSDATE
+WHERE 
+  {[short]}d.{[short]}_id = :3 
+AND {[short]}d.status_control = 'C'
+                </fm:sql>
+                <fm:using using-type="DATA-XMLTYPE"/>
+                <fm:using using-type="XPATH">:{user}/ID</fm:using>
+                <fm:using using-type="XPATH">:{params}/{[short_upcase]}_ID</fm:using>
+              </fm:update>
+            </fm:database>
+          </fm:storage-location>
+        </fm:storage-location-list>
+        <fm:entry-theme-list>
+          <fm:entry-theme name="resume">
+            <fm:storage-location-list>
+              <fm:storage-location synchronisation-mode="synchronised" default="true">sl-{[short]}</fm:storage-location>
+            </fm:storage-location-list>
+            <fm:state>state-{[short]}</fm:state>
+            <fm:attach>:{{[short]}}</fm:attach>
+            <fm:do></fm:do>
+          </fm:entry-theme>
+		    <fm:entry-theme name="view">
+          <fm:storage-location-list>
+            <fm:storage-location synchronisation-mode="unsynchronised" default="true">sl-{[short]}</fm:storage-location>
+          </fm:storage-location-list>
+          <fm:state>state-{[short]}</fm:state>
+          <fm:attach>:{{[short]}}</fm:attach>
+          <fm:do></fm:do>
+        </fm:entry-theme>
+        </fm:entry-theme-list>
+        <fm:action-list>
+          <fm:action name="action-dummy">
+		    <fm:do/>
+	      </fm:action>
+        </fm:action-list>
+        <fm:db-interface-list>
+          <fm:db-interface name="dbint-{[singular_upcase]}"/>
+        </fm:db-interface-list>
+        <fm:css-list/>
+        <fm:presentation>
+          <fm:set-buffer name="buffer-content">
+            <fm:set-out match=":{{[short]}}" {[short]}:mode="."></fm:set-out>
+          </fm:set-buffer>
+        </fm:presentation>
+        <fm:state-list>
+          <fm:state name="state-{[short]}">
+            <fm:action-list/>
+            <fm:presentation/>
+          </fm:state>
+        </fm:state-list>
+        <fm:template-list/>
+        <fm:map-set-list/>
+      </fm:module>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="{[singular_upcase]}" {[short]}:ro="."></xs:element>
+</xs:schema>

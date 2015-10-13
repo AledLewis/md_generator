@@ -1,0 +1,117 @@
+CREATE TABLE {{schema}}.{{plural}} (
+  id NUMBER NOT NULL
+{{#fk_column}}
+, {{fk_short}}_id NUMBER NOT NULL
+{{/fk_column}}
+) TABLESPACE tbsdata
+/
+
+ALTER TABLE {{schema}}.{{plural}} ADD (
+  CONSTRAINT {{short}}_pk PRIMARY KEY (id) USING INDEX TABLESPACE tbsidx
+)
+/
+
+{{#fk_column}}
+ALTER TABLE {{schema}}.{{plural}} ADD (
+  CONSTRAINT {{short}}_fk1 FOREIGN KEY ({{fk_short}}_id) REFERENCES {{fk_schema}}.{{fk_table}}({{fk_column}})
+)
+/
+
+CREATE INDEX {{schema}}.{{short}}fk_idx1 ON {{schema}}.{{plural}}({{fk_short}}_id)
+/
+
+{{/fk_column}}
+CREATE TABLE {{schema}}.{{singular}}_details (
+  id NUMBER NOT NULL
+, {{short}}_id NUMBER NOT NULL
+, {{short}}_xml_data XMLTYPE
+, status_control VARCHAR2(1)
+, start_datetime DATE NOT NULL
+, end_datetime DATE
+, last_modified_datetime DATE 
+, last_modified_by_wua_id NUMBER
+) TABLESPACE tbsdata
+XMLTYPE COLUMN {{short}}_xml_data STORE AS SECUREFILE BINARY XML {{short}}_xml_data (TABLESPACE tbsblob DISABLE STORAGE IN ROW RETENTION CACHE)
+/
+
+GRANT REFERENCES ON securemgr.web_user_account_master TO {{schema}}
+/
+
+ALTER TABLE {{schema}}.{{singular}}_details ADD(
+  CONSTRAINT {{short}}d_pk PRIMARY KEY (id) USING INDEX TABLESPACE tbsidx
+, CONSTRAINT {{short}}d_fk1 FOREIGN KEY ({{short}}_id) REFERENCES {{schema}}.{{plural}}(id)
+, CONSTRAINT {{short}}d_fk2 FOREIGN KEY (last_modified_by_wua_id) REFERENCES securemgr.web_user_account_master(wua_id)
+, CONSTRAINT {{short}}d_ck1 CHECK (
+    (status_control IS NULL AND end_datetime IS NOT NULL)
+    OR
+    (NVL(status_control, 'X') = 'C' AND end_datetime IS NULL)
+  )
+)
+/
+
+CREATE INDEX {{schema}}.{{short}}_fk_idx1 ON {{schema}}.{{singular}}_details({{short}}_id) TABLESPACE tbsidx
+/
+
+CREATE INDEX {{schema}}.{{short}}_fk_idx2 ON {{schema}}.{{singular}}_details(last_modified_by_wua_id) TABLESPACE tbsidx
+/
+
+CREATE SEQUENCE {{schema}}.{{short}}_seq
+START WITH 1
+INCREMENT BY 1
+NOMAXVALUE
+NOCYCLE
+CACHE 20
+NOORDER
+/
+
+CREATE SEQUENCE {{schema}}.{{short}}d_seq
+START WITH 1
+INCREMENT BY 1
+NOMAXVALUE
+NOCYCLE
+CACHE 20
+NOORDER
+/
+
+GRANT SELECT ON {{schema}}.{{plural}} TO appenv
+/
+
+GRANT SELECT, UPDATE ON {{schema}}.{{singular}}_details TO appenv
+/
+
+GRANT SELECT ON {{schema}}.{{plural}} TO xviewmgr
+/
+
+GRANT SELECT, REFERENCES ON {{schema}}.{{singular}}_details TO xviewmgr
+/
+{{#uref_type}}
+
+GRANT SELECT, REFERENCES, INDEX ON {{schema}}.{{plural}} TO bpmmgr
+/
+
+INSERT INTO bpmmgr.uref_types(
+  uref_type
+, object_owner
+, object_name
+, object_pk_1_column_name
+, uref_fk1_column_name
+, description
+, expanded_type
+, internal_name
+) VALUES (
+  '{{uref_type}}'
+, '{{schema_upcase}}'
+, '{{plural_upcase}}'
+, 'ID'
+, '{{short_upcase}}_ID'
+, '{{description}}'
+, '{{short_upcase}}'
+, '{{uref_type}}'
+)
+/
+
+BEGIN 
+  bpmmgr.uref_types_auto.command('{{uref_type}}', 'C');
+END;
+/
+{{/uref_type}}

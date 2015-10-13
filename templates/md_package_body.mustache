@@ -1,0 +1,48 @@
+CREATE OR REPLACE PACKAGE BODY {{schema}}.{{singular}} AS
+  
+  PROCEDURE create_{{singular}}(
+    p_wua_id NUMBER
+{{#fk_column}}
+  , p_{{fk_short}}_id NUMBER
+{{/fk_column}}
+  , po_new_{{short}}_id OUT NUMBER
+  ) IS
+  
+    l_new_{{short}}_id NUMBER;
+    
+  BEGIN 
+  
+    INSERT INTO {{schema}}.{{plural}}(
+      id
+{{#fk_column}}
+    , {{fk_short}}_id NUMBER
+{{/fk_column}}
+    ) VALUES (
+      {{schema}}.{{short}}_seq.NEXTVAL
+{{#fk_column}}
+    , p_{{fk_short}}_id
+{{/fk_column}}
+    ) RETURNING id INTO po_new_{{short}}_id;
+    
+    INSERT INTO {{schema}}.{{singular}}_details(
+      id
+    , {{short}}_id
+    , {{short}}_xml_data 
+    , status_control
+    , start_datetime 
+    , last_modified_datetime  
+    , last_modified_by_wua_id 
+    ) VALUES (
+      {{short}}d_seq.NEXTVAL
+    , po_new_{{short}}_id
+    , XMLELEMENT("{{singular_upcase}}")
+    , 'C' 
+	  , SYSDATE
+    , SYSDATE
+	  , p_wua_id
+    );
+    
+  END create_{{singular}};
+
+END {{singular}};
+/
