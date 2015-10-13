@@ -2,9 +2,12 @@
 Master Detail relationship table generator for FOX
 
 # Installation
+
+```
 git clone https://github.com/AledLewis/md_generator.git
 cd md_generator
 bundle install
+```
 
 # Usage 
 Write a config file called md_config.yaml, an example, for a notification table, is below : 
