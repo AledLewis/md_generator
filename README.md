@@ -23,3 +23,5 @@ description: test applications
 #fk_column: id
 
 ```
+Run ruby md_(patch|module|package).rb
+Look in the output folder for goodies
