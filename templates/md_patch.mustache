@@ -17,7 +17,7 @@ ALTER TABLE {{schema}}.{{plural}} ADD (
 )
 /
 
-CREATE INDEX {{schema}}.{{short}}fk_idx1 ON {{schema}}.{{plural}}({{fk_short}}_id)
+CREATE INDEX {{schema}}.{{short}}fk_idx1 ON {{schema}}.{{plural}}({{fk_short}}_id) TABLESPACE tbsidx
 /
 
 {{/fk_column}}
